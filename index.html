@@ -67,7 +67,7 @@
 <main role="main" class="container">
 <h1>大老板</h1>
 <div class="input-group" >
-<input type="text" class="form-control" id="text_playerid" placeholder="你是谁？">
+<input type="text" class="form-control" id="text_playerid" placeholder="这里！写名字！名字里不能有空格:(">
 <a class="btn btn-primary float-right" id="btn_confirmname" >确认姓名</a> 
 <a class="btn btn-danger float-right" id="btn_stackmerge" >洗牌</a>
 <span style="padding-left: 20px">Ping:<span id="div_connection"></span></span>
@@ -231,7 +231,7 @@ $(document).ready(function(){
         socket.emit("command", cmd);
     });
 
-    $("#btn_takeone").click(function(){alert("请先输入并确认你的姓名。一定要按下哪个按钮XD");});
+    $("#btn_takeone").click(function(){alert("请先输入并确认你的姓名。一定要按下那个按钮XD");});
     $("#btn_put").click(function(){
         alert("请先输入并确认你的姓名。一定要按下哪个按钮XD");
     });
