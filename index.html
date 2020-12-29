@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v4.1.1">
+    <title>全文搜索引擎</title>
+    <!-- Bootstrap core CSS -->
+<link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        .bg-success{
+            color:white;
+        }
+        h1{
+            text-align: center;
+        }
+      .body {
+          padding-top: 5rem;
+        }
+        .starter-template {
+          padding: 3rem 1.5rem;
+          text-align: center;
+        }
+        .lds-ring {
+        display: inline-block;
+        position: relative;
+        width: 80px;
+        height: 80px;
+        }
+        .lds-ring div {
+        box-sizing: border-box;
+        display: block;
+        position: absolute;
+        width: 64px;
+        height: 64px;
+        margin: 8px;
+        border: 8px solid rgb(11, 189, 180);
+        border-radius: 50%;
+        animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+        border-color: rgb(66, 174, 207) transparent transparent transparent;
+        }
+        .lds-ring div:nth-child(1) {
+        animation-delay: -0.45s;
+        }
+        .lds-ring div:nth-child(2) {
+        animation-delay: -0.3s;
+        }
+        .lds-ring div:nth-child(3) {
+        animation-delay: -0.15s;
+        }
+        @keyframes lds-ring {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+        }
+
+    </style>
+  </head>
+  <body>
+    
+<main role="main" class="container">
+<h1>大老板</h1>
+<div class="input-group" >
+<input type="text" class="form-control" id="text_playerid" placeholder="你是谁？">
+<a class="btn btn-primary float-right" id="btn_confirmname" >确认姓名</a> 
+<a class="btn btn-danger float-right" id="btn_stackmerge" >洗牌</a>
+<span style="padding-left: 20px">Ping:<span id="div_connection"></span></span>
+</div>
+ 
+  <div class="starter-template">
+    <span class="badge badge-danger" id="badge_wrongapikey"></span>
+    <div class="row" id="div_playerinfo">
+    <div class="card col-3">
+        <div class="card-body">
+          <h5 class="card-title">PLAYER</h5>
+          <p class="card-text">剩余牌数：<span>1</span></p>
+          <a href="#" class="btn btn-primary">偷取</a>
+        </div>
+      </div>
+      </div>
+      </div>
+      <div class="alert alert-success" role="alert">
+        你的手牌：
+        <ul class="nav justify-content-center" id="ul_mycards">
+            <!-- <li class="nav-item">
+                <a class="nav-link" href="#">红生意</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">绿生意</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">我是老板</a>
+            </li>
+            </ul> -->
+      </div>
+
+      
+        <div class="card" style="alignment:center;">
+            <div class="card-body">
+              <h5 class="card-title">已选择：</h5>
+              <p class="card-text" id="p_selected_card"></p>
+              <a class="btn btn-primary" id="btn_takeone">抽牌</a>
+              <a class="btn btn-primary" id="btn_put">出牌</a>
+              
+            </div>
+          </div>
+        <div class="alert alert-warning" role="alert">
+            玩家行为：
+        </div>
+        <ul class="list-group" id="ul_log">
+            <li class="list-group-item">1号玩家打了一张【红旅行】<button type="button" class="btn btn-danger">捡回【<span>红旅行</span>】</button></li>
+            <li class="list-group-item">2号玩家抽取了一张牌</li>
+        </ul>
+        <div class="input-group" >
+            <input type="text" class="form-control" id="text_supercmd" placeholder="Command">
+            <a class="btn btn-danger float-right" id="btn_supercmd">执行超级命令</a>
+        </div>
+  </div>
+    
+</main><!-- /.container -->
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/blueimp-md5/2.18.0/js/md5.min.js"></script>
+<!-- <script src="https://cdn.bootcdn.net/ajax/libs/crypto-js/3.1.2/components/core-min.js"></script> -->
+<script src="https://cdn.bootcdn.net/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<!-- <script src="https://cdn.bootcdn.net/ajax/libs/crypto-js/3.3.0/aes.js"></script> -->
+<script src="https://cdn.bootcdn.net/ajax/libs/socket.io/3.0.0-rc4/socket.io.min.js"></script>
+
+<script>
+
+function connection_success(){
+    $("#div_connection").html('<span class="badge bg-success" id="span_connection_success">已连接</span>');
+    $("#span_connection_success").fadeOut(1000);
+}
+
+function submit_search(){
+    searchkey=$("#text_search_content").val();
+    console.log(searchkey);
+    var request = $.ajax({
+        url: "search",
+        type: "POST",
+        data: {searchkey: encrypt(searchkey,key)},
+        dataType: "html"
+    });
+    $("#div_spinner").html(spinnerhtml);
+}
+var playerid;
+var lastcards="", lastlog="";
+
+function confirm_name(){
+
+}
+
+$(document).ready(function(){
+    console.log("Loaded.");
+    $("#text_playerid").val($.cookie("playerid"));
+    template=$("#div_results").html();
+    var socket = new io();
+    socket.connect();
+
+    socket.on('connect', function(){
+        console.log('connected');
+        socket.send('hi!'); 
+    });
+    socket.on('message', function(rawdata){ 
+        console.log(rawdata);
+        pendingrawdata=rawdata;
+        decrypt_rawdata();
+    });
+
+    socket.on('cards', function(cards_json){
+        // console.log(JSON.parse(cards_json));
+        connection_success();
+        if (cards_json==lastcards) return;
+        lastcards=cards_json;
+        cards=JSON.parse(cards_json);
+        if (playerid in cards){
+            
+            console.log(cards[playerid]);
+            cardshtml="";
+            cardshtmltemplate='<li class="nav-item"><a class="nav-link" href="#">CARDTITLE</a></li>';
+            cards[playerid].forEach(element => {
+                cardshtml+=cardshtmltemplate.replace("CARDTITLE", element);
+            });
+            $("#ul_mycards").html(cardshtml);
+            $(".nav-link").click(function(event){
+                console.log("选择了：",$(this).text());
+                $("#p_selected_card").text($(this).text());
+            });
+            
+        }
+
+        playerinfotemplate='<div class="card col-3"><div class="card-body">\
+            <h5 class="card-title">PLAYERNAME</h5>\
+            <p class="card-text">剩余牌数：<span>CARDLEFT</span></p>\
+            </div>\
+            </div>';
+        playerinfohtml="";
+        $.each(cards, function(key, data){
+            playerinfohtml+=playerinfotemplate.replace("PLAYERNAME", "玩家："+key).replace("CARDLEFT", data.length);
+        });
+        $("#div_playerinfo").html(playerinfohtml);
+    });
+
+    socket.on('logs', function(logtxt){
+        connection_success();
+        if (lastlog==logtxt) return;
+        lastlog=logtxt;
+        console.log(logtxt);
+        loghtml="";
+        logitemtemplate='<li class="list-group-item">LOGENTRY</li>';
+        $.each(logtxt.split('\n'), function(line, entry){
+            loghtml+=logitemtemplate.replace("LOGENTRY",entry);
+        });
+        $("#ul_log").html(loghtml);
+    });
+    
+
+    socket.on('disconnect', function(){
+        console.log('disconected');
+    });
+    $("#btn_supercmd").click(function(){
+        var cmd=$("#text_supercmd").val();
+        console.log("输入了超级命令", cmd)
+        socket.emit("command", cmd);
+    });
+
+    $("#btn_takeone").click(function(){alert("请先输入并确认你的姓名。一定要按下哪个按钮XD");});
+    $("#btn_put").click(function(){
+        alert("请先输入并确认你的姓名。一定要按下哪个按钮XD");
+    });
+    
+    $("#btn_confirmname").click(function(){
+        playerid=$("#text_playerid").val();
+        console.log("Confirm as ", playerid);
+        $("#text_playerid").prop('disabled', true);
+        $.cookie("playerid", playerid);
+        $("#btn_takeone").off('click');
+        $("#btn_put").off('click');
+        $("#btn_takeone").click(function(){socket.emit("command","takeone "+playerid);});
+        $("#btn_stackmerge").click(function(){socket.emit("command","stackmerge");});
+        $("#btn_put").click(function(){
+            socket.emit("command","put "+playerid+" "+$("#p_selected_card").text());
+            $("#p_selected_card").text("");
+        });
+        lastcards="";
+    });
+});
+    
+</script>
+</html>
+    
