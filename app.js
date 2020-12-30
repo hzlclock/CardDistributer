@@ -6,6 +6,7 @@ var baseDirectory = __dirname   // or whatever base directory you want
 require('log-timestamp');
 io = require('socket.io');
 var shell = require('shelljs');
+const { exit } = require('process')
 shell.config.silent = true;
 
 var port = 8091;
@@ -65,6 +66,7 @@ function getlatestmsg(forced=false){
         return encrypted;
     }
 }
+var specialch = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
 var socket = io(server); 
 socket.on('connection', function(client){ 
     // new client is here! 
@@ -82,6 +84,11 @@ socket.on('connection', function(client){
 
     client.on('command', function(cmd){
         console.log(cmd)
+        if (specialch.test(cmd)){
+            socket.emit("logs", "服务器遭受潜在的攻击，正在关闭。");
+            console.log("suspicious attack: ",cmd);
+            exit(0);
+        }
         shell.exec('bash exec.sh '+cmd);
     });
     

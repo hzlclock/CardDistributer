@@ -6,7 +6,7 @@
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Jekyll v4.1.1">
-    <title>全文搜索引擎</title>
+    <title>大老板网络抽牌器</title>
     <!-- Bootstrap core CSS -->
 <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 
@@ -198,12 +198,12 @@ $(document).ready(function(){
 
         playerinfotemplate='<div class="card col-3"><div class="card-body">\
             <h5 class="card-title">PLAYERNAME</h5>\
-            <p class="card-text">剩余牌数：<span>CARDLEFT</span></p>\
+            <p class="card-text">剩余：<span>CARDLEFT</span>张</p>\
             </div>\
             </div>';
         playerinfohtml="";
         $.each(cards, function(key, data){
-            playerinfohtml+=playerinfotemplate.replace("PLAYERNAME", "玩家："+key).replace("CARDLEFT", data.length);
+            playerinfohtml+=playerinfotemplate.replace("PLAYERNAME", ""+key).replace("CARDLEFT", data.length);
         });
         $("#div_playerinfo").html(playerinfohtml);
     });
